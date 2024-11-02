@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}?v={{ STATIC_VERSION }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Company</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd2SZE2xbvE980E4egsVeovZPxvonBzjw&libraries=places"></script>
+</head>
+<body>
+    <div class="shadow-overlay"></div>
+    <div class="toolbar">
+        <div class="title">Ride Share</div>
+    </div>
+    <main style="flex: 1; z-index: 2; position: relative; padding: 20px;">
+        <div class="elevated-container">
+            <h2>Ride Fare Amount Prediction</h2>
+            <form class="ride-form" action="" method="POST" id="rideForm">
+                {% csrf_token %}
+                
+                <!-- Pickup and Drop-off Location Fields with Map Trigger -->
+                <div class="form-group">
+                    <label for="pickup">Pickup Location</label>
+                    <input type="text" id="pickup_latitude" name="pickup_latitude" placeholder="Pickup Latitude" readonly required />
+                    <input type="text" id="pickup_longitude" name="pickup_longitude" placeholder="Pickup Longitude" readonly required />
+                    <button type="button"class="select-button" onclick="openMap('pickup')">Select Pickup Location</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dropoff">Drop-off Location</label>
+                    <input type="text" id="dropoff_latitude" name="dropoff_latitude" placeholder="Drop-off Latitude" readonly required />
+                    <input type="text" id="dropoff_longitude" name="dropoff_longitude" placeholder="Drop-off Longitude" readonly required />
+                    <button type="button"class="select-button" onclick="openMap('dropoff')">Select Drop-off Location</button>
+                </div>
+
+                <!-- Auto-filled Date and Time Fields -->
+                <div class="form-group">
+                    <label for="hour">Hour</label>
+                    <input type="number" id="hour" name="hour" readonly required />
+                </div>
+                <div class="form-group">
+                    <label for="weekday">Weekday</label>
+                    <input type="number" id="weekday" name="weekday" readonly required />
+                </div>
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <input type="number" id="year" name="year" readonly required />
+                </div>
+
+                <!-- Distance and Bearing Calculations -->
+                <div class="form-group">
+                    <label for="distance">Distance (miles)</label>
+                    <input type="number" id="distance" name="distance" readonly required />
+                </div>
+                <div class="form-group">
+                    <label for="bearing">Bearing (degrees)</label>
+                    <input type="number" id="bearing" name="bearing" readonly required />
+                </div>
+                <div class="form-group">
+                    <label for="input-label">passenger_count</label>
+                    <input type="number" id="passenger_count" name="passenger_count" placeholder="Enter passenger_count" required value="{{ request.POST.passenger_count }}" />
+                    
+                </div>
+                <div class="form-group">
+                    <label for="weather">Is the weather sunny?</label>
+                    <input type="checkbox" id="weather" name="weather" value="1" {% if request.POST.weather == "1" %}checked{% endif %}>
+                    <input type="hidden" name="weather" value="0"> <!-- Default to 0 if not checked -->
+                </div>
+                
+                <div class="form-group">
+                    <label for="traffic">Is the traffic dense?</label>
+                    <input type="checkbox" id="traffic" name="traffic" value="1" {% if request.POST.traffic == "1" %}checked{% endif %}>
+                    <input type="hidden" name="traffic" value="0"> <!-- Default to 0 if not checked -->
+                </div>
+
+                <!-- Submit Button -->
+                <div class="action">
+                    <button type="submit" class="action-button">Submit</button>
+                </div>
+            </form>
+        </div>  
+
+        <!-- Map Modal -->
+        <div id="mapModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; background: rgba(0, 0, 0, 0.5);">
+            <div id="map" style="width: 100%; height: 100%;"></div>
+            <button onclick="closeMap()" style="position: absolute; top: 10px; right: 10px; z-index: 4;">Close Map</button>
+        </div>
+
+        <!-- Predicted Fare Amount Display -->
+        <div class="amount-container">
+            <h2 id="fareAmount">Predicted Fare Amount : {{ output_result }} $</h2>
+        </div>
+    </main>
+</body>
+
+<script>
+// Coordinates for airports
+const airports = {
+    JFK: { lat: 40.6413, lng: -73.7781 },
+    EWR: { lat: 40.6895, lng: -74.1745 },
+    LGA: { lat: 40.7769, lng: -73.8740 },
+    SOL: { lat: 40.5714, lng: -74.7397 }
+};
+
+let map, marker, targetField;
+
+// Open Map Modal for selecting locations
+function openMap(type) {
+    targetField = type;
+    document.getElementById('mapModal').style.display = 'block';
+
+    if (!map) {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 40.7128, lng: -74.0060 }, // New York City center as default
+            zoom: 10
+        });
+    }
+
+    // Set up a click listener to add a marker and get coordinates
+    google.maps.event.clearListeners(map, 'click');
+    map.addListener('click', (e) => {
+        setLocation(e.latLng);
+    });
+}
+
+function setLocation(location) {
+    if (!marker) {
+        marker = new google.maps.Marker({ map });
+    }
+    marker.setPosition(location);
+
+    if (targetField === 'pickup') {
+        document.getElementById('pickup_latitude').value = location.lat().toFixed(6);
+        document.getElementById('pickup_longitude').value = location.lng().toFixed(6);
+    } else {
+        document.getElementById('dropoff_latitude').value = location.lat().toFixed(6);
+        document.getElementById('dropoff_longitude').value = location.lng().toFixed(6);
+    }
+    
+    calculateDistanceAndBearing();
+    closeMap();
+}
+
+function closeMap() {
+    document.getElementById('mapModal').style.display = 'none';
+}
+
+// Haversine formula for distance and bearing calculation
+function calculateDistanceAndBearing() {
+    const lat1 = parseFloat(document.getElementById('pickup_latitude').value);
+    const lon1 = parseFloat(document.getElementById('pickup_longitude').value);
+    const lat2 = parseFloat(document.getElementById('dropoff_latitude').value);
+    const lon2 = parseFloat(document.getElementById('dropoff_longitude').value);
+
+    if (!isNaN(lat1) && !isNaN(lon1) && !isNaN(lat2) && !isNaN(lon2)) {
+        const R = 3960; // Radius of Earth in miles
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) ** 2;
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+
+        document.getElementById('distance').value = distance.toFixed(2);
+
+        const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+        const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                  Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+        const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+        
+        document.getElementById('bearing').value = bearing.toFixed(2);
+    }
+}
+
+// Autofill date and time
+function autofillDateTime() {
+    const now = new Date();
+    document.getElementById('hour').value = now.getHours();
+    document.getElementById('weekday').value = now.getDay();
+    document.getElementById('year').value = now.getFullYear();
+}
+
+// Initialize date and time on load
+document.addEventListener('DOMContentLoaded', autofillDateTime);
+</script>
+</html>

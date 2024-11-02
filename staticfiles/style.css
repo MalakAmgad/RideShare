@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Full height background image with shadow overlay */
+body {
+  background: url('car.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: #ffffff;
+  position: relative;
+}
+.toolbar .title {
+  font-size: 38px;
+  font-weight: bold;
+  color: #ffffff;
+}
+/* Shadow layer over the background */
+.shadow-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Adjust shadow opacity */
+  z-index: 1;
+}
+
+/* Toolbar styles */
+.toolbar {
+  background-color: #000;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  position: relative;
+}
+
+/* Elevated container */
+.elevated-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  margin: 1px 50px;
+  color: #222121;
+  z-index: 2;
+}
+
+/* Heading styles */
+.elevated-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 20px;
+}
+
+.amount-container {
+  background-color: #050505;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  position: absolute;
+  top: 50%;
+  right: 100px;
+  transform: translateY(-50%);
+  color: #f8f7f7;
+  z-index: 2;
+}
+
+/* Heading styles */
+.amount-container h2 {
+  font-size: 30px;
+  font-weight: bold;
+  color: #fdfcfc;
+  margin-bottom: 20px;
+}
+
+/* Form styling */
+.ride-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.ride-form .form-group {
+  flex: 1 1 40%;
+}
+
+.ride-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555555;
+}
+
+.ride-form select,
+.ride-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333333;
+  background-color: #f8f8f8;
+}
+
+.ride-form input[type="checkbox"] {
+  width: auto;
+  margin-right: 10px;
+}
+
+/* Button styling */
+.ride-form button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.ride-form .request-button {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.output {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: bolder;
+  color: #5c5c5c;
+  border: 1px solid #ddd;
+}
