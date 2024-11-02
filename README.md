@@ -32,7 +32,7 @@ This project is a web application that accurately predicts the fare of a taxi ri
 ## 📊 Data and Model
 
 The model is trained on a dataset with real-world taxi fare data, loaded and processed in a Jupyter Notebook. The notebook includes data preprocessing steps, Exploratory Data Analysis (EDA), and model training.
-![Data][https://drive.google.com/file/d/1pmB4BIljHh3c-AB0wnUBGnime_rsRM54/view?usp=sharing]
+![Data](https://drive.google.com/file/d/1pmB4BIljHh3c-AB0wnUBGnime_rsRM54/view?usp=sharing)
 
 ### Key Steps in the Notebook:
 1. **Data Preprocessing**:
