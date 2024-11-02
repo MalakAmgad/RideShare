@@ -104,7 +104,7 @@ taxi-fare-prediction/
 |--------------------------|------------|
 | **Home Page**            | ![Home Page](https://github.com/MalakAmgad/RideShare/blob/main/Screenshot%20(843).png) |
 | **Map Selection**        | ![Map Popup](https://github.com/MalakAmgad/RideShare/blob/main/Screenshot%20(842).png) |
-| **Prediction Output**    | ![Prediction Output](https://github.com/MalakAmgad/RideShare/blob/main/Screenshot%20(6122).png) |
+| **Prediction Output**    | ![Prediction Output](https://github.com/MalakAmgad/RideShare/blob/main/Screenshot(6122).png) |
 
 ## 🙏 Acknowledgments
 
